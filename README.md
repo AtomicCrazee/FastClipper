@@ -1,77 +1,75 @@
 <img width="962" height="849" alt="Screenshot 2026-09-10 114034" src="https://github.com/user-attachments/assets/89f0fcee-663e-462c-b62e-d49f41415f6a" />
 
-# FastClipper
-A vibe coded game clipper that just works
-=============================
+# MP4 Audio & Game Clip Creator
 
-1. Install FFmpeg once, if it is not already installed:
-   winget install Gyan.FFmpeg
+A lightweight Windows utility for trimming MP4 gameplay footage, producing Discord-ready clips, and extracting WAV audio.
 
-2. Double-click "Build EXE.bat" once. This uses the compiler included with
-   Windows to create MP4-to-WAV.exe without installing Visual Studio.
+## Features
 
-3. Launch MP4-to-WAV.exe. It opens without a console window and can be pinned
-   to the taskbar. Keep the EXE and MP4-to-WAV.ps1 together in this folder.
+- Visual MP4 preview with timeline scrubbing
+- In/out points using buttons or the `I` and `O` keys
+- Frame stepping with the left and right arrow keys
+- Fast stream-copy exports with no quality loss
+- Frame-accurate H.264 and H.265 exports
+- Custom source, 24, 30, 60, or user-entered frame rates
+- Source-matching resolution, frame rate, codec family, and approximate bitrate
+- Discord export with a conservative 7.75 MB target and enforced 8 MB maximum
+- Detection of multiple audio tracks
+- Keep audio tracks separate, mix them, or keep only the first track
+- Lossless 32-bit float WAV extraction
 
-4. Drop an MP4 into the window or choose one with the file picker.
+## Requirements
 
-5. Scrub with the timeline. Press I to set the In point and O to set the Out
-   point. Space toggles playback. Left Arrow and Right Arrow move the playhead
-   backward or forward by one source-video frame. The buttons can also set both
-   trim points. The picture updates continuously as the timeline is scrubbed.
+- Windows 10 or Windows 11
+- Windows PowerShell 5.1 or newer
+- Microsoft .NET Framework 4.x with WPF (included with supported Windows versions)
+- FFmpeg and FFprobe
 
-6. Use either export tab:
-   - WAV Audio exports the first audio stream as lossless 32-bit float WAV.
-   - Game Clip exports the selected range as an MP4.
+Run `Setup Prerequisites.bat` once to install FFmpeg through Windows Package Manager. FFmpeg is intentionally not committed because each executable is larger than GitHub's 100 MB per-file repository limit.
 
-GAME CLIP MODES
----------------
-Fast source copy is the quickest option. It copies the original video and audio
-without re-encoding. Because compressed video can only be copied cleanly from a
-keyframe, the opening frame can be slightly earlier than the selected In point.
+If `winget` is unavailable, download a Windows FFmpeg build manually and either:
 
-Match source makes a frame-accurate clip using the source resolution, frame rate,
-H.264/H.265 codec family, and approximate source video bitrate. Use this when you
-want the clip to behave like the source but need exact trim points.
+1. Put `ffmpeg.exe` and `ffprobe.exe` beside `MP4-to-WAV.exe`, or
+2. Add their `bin` folder to the Windows `PATH`.
 
-Custom lets you select H.264 or H.265 and enter any positive frame rate. "Source"
-keeps the original frame rate. H.264 has the widest playback compatibility; H.265
-usually produces a smaller file but can take longer to encode.
+## Privacy and security
 
-Discord (under 8 MB) uses two-pass encoding and a conservative 7.75 MB target. It
-automatically assigns the available bitrate and scales very low-bitrate clips down
-when necessary. H.264 is the safest Discord choice. Very long selections may become
-visibly soft because the entire clip must fit into the fixed size limit.
+The editor runs locally. It has no telemetry, analytics, advertising, account integration, API keys, or network requests. Selected media paths are passed only to the local FFmpeg/FFprobe processes and are not transmitted anywhere.
 
-AUDIO TRACKS
-------------
-The source summary shows how many audio tracks were detected. Game clips can keep
-all tracks separately (useful for game/voice tracks), mix every track together for
-simple playback, or keep only the first track. The Discord size budget includes all
-selected audio tracks.
+`Setup Prerequisites.bat` is optional and is the only component that can access the network; it asks Windows Package Manager to install the public `Gyan.FFmpeg` package. Every distributable source file is included for inspection. See `SECURITY.md` for the release audit and trust notes.
 
-Enable "Show processing console" inside the editor to reveal FFmpeg's detailed
-processing log. It is hidden by default.
+## Running
 
-PREVIEW PERFORMANCE
--------------------
-When a video is opened, the editor creates a temporary 720p all-intra preview
-with audio. It first attempts NVIDIA CUDA decoding, CUDA scaling and NVENC
-encoding. If the installed NVIDIA driver is too old for the FFmpeg NVENC API, it
-uses CUDA decoding/scaling with an ultrafast CPU encoder. A fully CPU-based path
-is the final fallback. Expected GPU-probing failures are hidden automatically.
-The temporary preview is deleted when the editor closes and is never used for
-the final WAV export.
+1. Run `Setup Prerequisites.bat` once.
+2. Double-click `MP4-to-WAV.exe` or `Launch App.bat`.
+3. Drop an MP4 into the window.
+4. Set the In and Out points.
+5. Choose either the **WAV Audio** or **Game Clip** tab and export.
 
-QUALITY
--------
-The utility removes the video and decodes the first audio stream to uncompressed
-32-bit floating-point PCM. It preserves the source sample rate and channel layout
-and performs no normalization, filtering, or deliberate resampling.
+### Export modes
 
-Most MP4 files contain compressed AAC audio. Converting AAC to WAV cannot restore
-detail that was already discarded when the AAC was created, but this process adds
-no further lossy compression. A WAV will be considerably larger than the MP4 audio.
+- **Fast source copy:** fastest and lossless; the beginning can move to the nearest video keyframe.
+- **Match source:** frame-accurate re-encode using source-like settings.
+- **Custom:** frame-accurate H.264/H.265 export with an adjustable frame rate.
+- **Discord:** two-pass encode that balances resolution, video bitrate, and selected audio tracks to remain below 8 MB.
+
+H.264 is recommended for the widest Discord and browser compatibility. H.265 usually creates smaller files, but playback support varies.
+
+## Building the launcher
+
+The compiled launcher is included. To rebuild it from `Launcher.cs`, run `Build EXE.bat`. It uses the C# compiler bundled with Microsoft .NET Framework and does not require Visual Studio.
+
+The launcher and PowerShell script must remain in the same folder.
+
+## Repository contents
+
+- `MP4-to-WAV.ps1` — application and FFmpeg export logic
+- `Launcher.cs` — source for the console-free Windows launcher
+- `MP4-to-WAV.exe` — compiled launcher
+- `Build EXE.bat` — rebuilds the launcher
+- `Setup Prerequisites.bat` — installs FFmpeg using `winget`
+- `Launch App.bat` — checks dependencies and starts the application
+- `SECURITY.md` — privacy, trust, and security information
 
 FFMPEG
 ------
