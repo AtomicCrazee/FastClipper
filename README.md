@@ -1,3 +1,4 @@
+<img width="962" height="849" alt="Screenshot 2026-09-10 114034" src="https://github.com/user-attachments/assets/89f0fcee-663e-462c-b62e-d49f41415f6a" />
 # FastClipper
 A vibe coded game clipper that just works
 =============================
